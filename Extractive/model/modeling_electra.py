@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# -*- author: JeremySun -*-
+# -*- dating: 21/2/10 -*-
+
 from transformers import (
     BertPreTrainedModel,
     ElectraModel,

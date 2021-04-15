@@ -1,5 +1,6 @@
-# import sys
-# sys.path.append(r'E:\Internship\ConvQA\Reference\transformers-coqa/')
+# -*- coding: utf-8 -*-
+# -*- author: JeremySun -*-
+# -*- dating: 21/2/9 -*-
 
 from transformers import BertModel, BertPreTrainedModel
 import torch.nn.functional as F

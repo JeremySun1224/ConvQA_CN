@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# -*- author: JeremySun -*-
+# -*- dating: 21/2/10 -*-
+
 import torch.nn as nn
 import torch.nn.functional as F
 

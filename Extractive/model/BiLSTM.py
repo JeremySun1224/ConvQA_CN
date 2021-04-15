@@ -1,6 +1,9 @@
-# /usr/bin/env python
-# coding=utf-8
-"""bi-lstm"""
+# -*- coding: utf-8 -*-
+# -*- author: JeremySun -*-
+# -*- dating: 21/2/25 -*-
+
+"""BiLSTM"""
+
 import torch.nn as nn
 
 

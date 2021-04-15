@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# -*- author: JeremySun -*-
+# -*- dating: 21/2/14 -*-
+
 from transformers import AlbertModel, AlbertPreTrainedModel
 import torch.nn.functional as F
 from torch.nn import CrossEntropyLoss

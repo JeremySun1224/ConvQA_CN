@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# -*- author: JeremySun -*-
+# -*- dating: 21/2/12 -*-
+
 from transformers import RobertaModel, BertPreTrainedModel, RobertaConfig, ROBERTA_PRETRAINED_MODEL_ARCHIVE_MAP
 import torch.nn.functional as F
 from torch.nn import CrossEntropyLoss
