@@ -1,4 +1,4 @@
-MODEL_PATH=E:\\Internship\\ConvQA\\Reference\\GenerativeCoQA\\Experiments\\QAQAFQ_CN\\ckpt-5105
+MODEL_PATH=E:\\Internship\\ConvQA\\GenerativeCoQA\\Experiments\\QAQAFQ_CN\\ckpt-5105
 export SPLIT=dev
 export CUDA_VISIBLE_DEVICES=0
 export OMP_NUM_THREADS=4
