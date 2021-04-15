@@ -1,4 +1,8 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
+# -*- author: JeremySun -*-
+# -*- dating: 21/2/8 -*-
+
+
 import collections
 import json
 import logging
