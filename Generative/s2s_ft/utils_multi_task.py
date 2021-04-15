@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# -*- author: JeremySun -*-
+# -*- dating: 21/3/4 -*-
+
 from __future__ import absolute_import, division, print_function
 
 import logging
