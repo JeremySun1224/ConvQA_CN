@@ -1,7 +1,7 @@
 python run_coqa.py --model_type bert \
-                   --model_name_or_path "E:\Internship\ConvQA\Reference\transformers-coqa\bert-output-rtransformer/" \
+                   --model_name_or_path "E:\Internship\ConvQA\bert-output-rtransformer/" \
                    --do_eval \
-                   --data_dir "E:\Internship\ConvQA\Reference\transformers-coqa\data\raw_data_cn_v3_sub" \
+                   --data_dir "E:\Internship\ConvQA\data\raw_data_cn_v3_sub" \
                    --train_file ConvQA_CN_v3.0_train.json \
                    --predict_file ConvQA_CN_v3.0_dev.json \
                    --max_seq_length 512 \
