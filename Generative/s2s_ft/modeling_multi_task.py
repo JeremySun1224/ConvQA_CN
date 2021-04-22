@@ -14,7 +14,6 @@ from torch.nn.modules.loss import _Loss
 import torch.nn.functional as F
 from torch.nn import CrossEntropyLoss
 
-
 from transformers.modeling_bert import \
     BertPreTrainedModel, BertSelfOutput, BertIntermediate, BertOutput, BertPredictionHeadTransform
 from transformers.modeling_roberta import ROBERTA_PRETRAINED_MODEL_ARCHIVE_MAP
@@ -41,6 +40,7 @@ MINILM_PRETRAINED_MODEL_ARCHIVE_MAP = {
     'minilm-l12-h384-uncased': "https://unilm.blob.core.windows.net/ckpt/minilm-l12-h384-uncased.bin",
 }
 
+
 class BertPreTrainedForSeq2SeqModel(BertPreTrainedModel):
     """ An abstract class to handle weights initialization and
         a simple interface for dowloading and loading pretrained models.
@@ -49,17 +49,17 @@ class BertPreTrainedForSeq2SeqModel(BertPreTrainedModel):
     supported_convert_pretrained_model_archive_map = {
         "bert": BERT_PRETRAINED_MODEL_ARCHIVE_MAP,
         "roberta": ROBERTA_PRETRAINED_MODEL_ARCHIVE_MAP,
-        "xlm-roberta": XLM_ROBERTA_PRETRAINED_MODEL_ARCHIVE_MAP, 
-        "unilm": UNILM_PRETRAINED_MODEL_ARCHIVE_MAP, 
-        "minilm": MINILM_PRETRAINED_MODEL_ARCHIVE_MAP, 
+        "xlm-roberta": XLM_ROBERTA_PRETRAINED_MODEL_ARCHIVE_MAP,
+        "unilm": UNILM_PRETRAINED_MODEL_ARCHIVE_MAP,
+        "minilm": MINILM_PRETRAINED_MODEL_ARCHIVE_MAP,
     }
     base_model_prefix = "bert_for_seq2seq"
     pretrained_model_archive_map = {
         **ROBERTA_PRETRAINED_MODEL_ARCHIVE_MAP,
-        **XLM_ROBERTA_PRETRAINED_MODEL_ARCHIVE_MAP, 
+        **XLM_ROBERTA_PRETRAINED_MODEL_ARCHIVE_MAP,
         **BERT_PRETRAINED_MODEL_ARCHIVE_MAP,
         **UNILM_PRETRAINED_MODEL_ARCHIVE_MAP,
-        **MINILM_PRETRAINED_MODEL_ARCHIVE_MAP, 
+        **MINILM_PRETRAINED_MODEL_ARCHIVE_MAP,
     }
 
     def _init_weights(self, module):
@@ -154,6 +154,7 @@ class BertPreTrainedForSeq2SeqModel(BertPreTrainedModel):
 class BertEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings.
     """
+
     def __init__(self, config):
         super(BertEmbeddings, self).__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=0)
@@ -277,7 +278,7 @@ class BertSelfAttention(nn.Module):
                 outputs.append(self.multi_head_attention(
                     query, key, value, attention_mask[:, :, sum_length - part_length: sum_length, :sum_length]
                 )[0])
-            outputs = (torch.cat(outputs, dim=1), )
+            outputs = (torch.cat(outputs, dim=1),)
         else:
             outputs = self.multi_head_attention(
                 mixed_query_layer, mixed_key_layer, mixed_value_layer, attention_mask)
@@ -378,6 +379,7 @@ class BertModel(BertPreTrainedForSeq2SeqModel):
         last_hidden_states = outputs[0]  # The last hidden-state is the first element of the output tuple
 
     """
+
     def __init__(self, config):
         super(BertModel, self).__init__(config)
         self.config = config
@@ -426,7 +428,7 @@ class BertModel(BertPreTrainedForSeq2SeqModel):
             embedding_output, attention_mask=extended_attention_mask, split_lengths=split_lengths)
         sequence_output = encoder_outputs[0]
 
-        outputs = (sequence_output, ) + encoder_outputs[1:]  # add hidden_states and attentions if they are here
+        outputs = (sequence_output,) + encoder_outputs[1:]  # add hidden_states and attentions if they are here
         return outputs  # sequence_output, pooled_output, (hidden_states), (attentions)
 
 
@@ -495,6 +497,7 @@ class BertOnlyMLMHead(nn.Module):
         prediction_scores = self.predictions(sequence_output)
         return prediction_scores
 
+
 class BertPooler(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -516,7 +519,7 @@ class BertForSequenceToSequence(BertPreTrainedForSeq2SeqModel):
         self.bert = BertModel(config)
         self.cls = BertOnlyMLMHead(config, self.bert.embeddings.word_embeddings.weight)
         self.pooler = BertPooler(config)
-         # extract
+        # extract
         self.qa_outputs = nn.Linear(config.hidden_size, 2)
         self.class_outputs = nn.Linear(config.hidden_size, class_num)
         self.init_weights()
@@ -534,7 +537,6 @@ class BertForSequenceToSequence(BertPreTrainedForSeq2SeqModel):
         else:
             self.crit_mask_lm_smoothed = None
             self.crit_mask_lm = nn.CrossEntropyLoss(reduction='none')
-            
 
     @staticmethod
     def create_mask_and_position_ids(num_tokens, max_len, offset=None):
@@ -549,14 +551,14 @@ class BertForSequenceToSequence(BertPreTrainedForSeq2SeqModel):
     @staticmethod
     def create_attention_mask(source_mask, target_mask, source_position_ids, target_span_ids):
         weight = torch.cat((torch.zeros_like(source_position_ids), target_span_ids, -target_span_ids), dim=1)
-        from_weight = weight.unsqueeze(-1)      # [batch_size, source+target+pseudo, 1]
-        to_weight = weight.unsqueeze(1)         # [batch_size, 1, source+target+pseudo]
-       
+        from_weight = weight.unsqueeze(-1)  # [batch_size, source+target+pseudo, 1]
+        to_weight = weight.unsqueeze(1)  # [batch_size, 1, source+target+pseudo]
+
         true_tokens = (0 <= to_weight) & (torch.cat((source_mask, target_mask, target_mask), dim=1) == 1).unsqueeze(1)
         true_tokens_mask = (from_weight >= 0) & true_tokens & (to_weight <= from_weight)
         pseudo_tokens_mask = (from_weight < 0) & true_tokens & (-to_weight > from_weight)
         pseudo_tokens_mask = pseudo_tokens_mask | ((from_weight < 0) & (to_weight == from_weight))
-        
+
         return (true_tokens_mask | pseudo_tokens_mask).type_as(source_mask)
 
     def forward(self, source_ids, target_ids, pseudo_ids, num_source_tokens, num_target_tokens, start_positions, end_positions, ans_choice, target_span_ids=None):
@@ -566,20 +568,20 @@ class BertForSequenceToSequence(BertPreTrainedForSeq2SeqModel):
         assert target_len == pseudo_len
         assert source_len > 0 and target_len > 0
         split_lengths = (source_len, target_len, pseudo_len)
-        
+
         torch.set_printoptions(edgeitems=768)
         input_ids = torch.cat((source_ids, target_ids, pseudo_ids), dim=1)
-        
+
         token_type_ids = torch.cat(
             (torch.ones_like(source_ids) * self.source_type_id,
              torch.ones_like(target_ids) * self.target_type_id,
              torch.ones_like(pseudo_ids) * self.target_type_id), dim=1)
-             
+
         source_mask, source_position_ids = \
             self.create_mask_and_position_ids(num_source_tokens, source_len)
         target_mask, target_position_ids = \
             self.create_mask_and_position_ids(num_target_tokens, target_len, offset=num_source_tokens)
-    
+
         position_ids = torch.cat((source_position_ids, target_position_ids, target_position_ids), dim=1)
         if target_span_ids is None:
             target_span_ids = target_position_ids
@@ -590,7 +592,7 @@ class BertForSequenceToSequence(BertPreTrainedForSeq2SeqModel):
 
         sequence_output = outputs[0]
         pseudo_sequence_output = sequence_output[:, source_len + target_len:, ]
-        
+
         def loss_mask_and_normalize(loss, mask):
             mask = mask.type_as(loss)
             loss = loss * mask
@@ -607,16 +609,16 @@ class BertForSequenceToSequence(BertPreTrainedForSeq2SeqModel):
                 prediction_scores_masked.transpose(1, 2).float(), target_ids)
         pseudo_lm_loss = loss_mask_and_normalize(
             masked_lm_loss.float(), target_mask)
-            
-        extract_sequence_output = sequence_output[:,:source_len, ] 
-        
+
+        extract_sequence_output = sequence_output[:, :source_len, ]
+
         logits = self.qa_outputs(extract_sequence_output)
         start_logits, end_logits = logits.split(1, dim=-1)
         start_logits = start_logits.squeeze(-1)
         end_logits = end_logits.squeeze(-1)
-        
+
         pooler_output = self.pooler(extract_sequence_output)
-        class_logits = self.class_outputs(pooler_output) # (batch, 1)
+        class_logits = self.class_outputs(pooler_output)  # (batch, 1)
         # print(class_logits.size(), ans_choice.size())
         if start_positions is not None and end_positions is not None:
             # If we are on multi-GPU, split add a dimension
@@ -633,8 +635,8 @@ class BertForSequenceToSequence(BertPreTrainedForSeq2SeqModel):
             start_loss = loss_fct(start_logits, start_positions)
             end_loss = loss_fct(end_logits, end_positions)
             extract_loss = (start_loss + end_loss) / 2
-            
+
             class_loss_fct = CrossEntropyLoss(ignore_index=3)
             class_loss = class_loss_fct(class_logits, ans_choice)
-            
+
         return pseudo_lm_loss, extract_loss, class_loss
