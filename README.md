@@ -14,7 +14,7 @@
                     "question_type": "factoid"
                 },
                 {
-                    "input_text": "圣诞前夕通常叫什么？",
+                    "input_text": "它通常叫什么？",
                     "turn_id": 2,
                     "question_type": "factoid"
                 },
